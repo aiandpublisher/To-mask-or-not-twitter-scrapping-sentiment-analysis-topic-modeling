@@ -74,6 +74,3 @@ m
 ```
 
 
-![1](https://user-images.githubusercontent.com/85307870/128109171-8ca41ef8-fe5b-4e0e-aebb-0cda3bd746b2.png)
-![2](https://user-images.githubusercontent.com/85307870/128109174-1a02bf1b-027b-4ebf-9c32-c2ade7d00919.png)
-![3](https://user-images.githubusercontent.com/85307870/128109175-6ec310db-262c-4df1-bb1e-4a86b9a92027.png)
