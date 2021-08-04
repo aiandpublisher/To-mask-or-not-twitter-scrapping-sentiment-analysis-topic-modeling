@@ -1,0 +1,79 @@
+---
+title: "tweets_sentiment_analysis"
+author: ""
+date: ""
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library("dplyr")      
+theme_set(
+  theme_bw() +
+    theme(legend.position = "top")
+  )
+
+```
+
+
+```{r data_import}
+tweet<-read.csv('change_to_your_path.csv')
+
+```
+
+```{r data_organize}
+tweet$date <- sub(" .*", "", tweet$created_at)
+tweet$date <- as.Date(tweet$date)
+tweet<-arrange(tweet,created_at)
+```
+
+
+## dataset as a whole 
+```{r pressure, echo=FALSE}
+tweet$month <- format(as.Date(tweet$date), "%y-%m")
+tweet_parts <- subset(tweet, select = compound:month) 
+sentiment <- aggregate(x = tweet_parts$compound,            # Specify data column
+          by = list(tweet_parts$month),             # Specify group indicator
+          FUN = mean)    
+colnames(sentiment) <- c('month','score')
+
+sentimentdate <- aggregate(x = tweet_parts$compound,            # Specify data column
+          by = list(tweet_parts$date),             # Specify group indicator
+          FUN = mean)    
+colnames(sentimentdate) <- c('date','score') 
+
+p <- ggplot(tweet,aes(date, compound)) +
+  geom_point(size=2.5,alpha=0.1,color="#0074B7")+
+  geom_smooth(method="auto", se=TRUE, fullrange=FALSE, level=0.95)
+p
+
+
+t <- ggplot(sentiment,aes(month, score,group = 1)) +
+  geom_point(color="#0074B7")+
+  geom_line()
+t
+
+```
+
+
+#sentiment by day
+```{r plot_sentiment,echo=FALSE}
+d <- ggplot(sentimentdate,aes(date, score,group = 1)) +
+  geom_bar(mapping=NULL,stat="identity",fill="#0074B7",size=0.2)+
+  geom_smooth()
+d
+
+sentdata <- tweet %>% group_by(date) %>% summarise(frequency = n(),score=mean(compound))
+
+m <- ggplot(sentdata,aes(date, frequency)) +
+  geom_bar(mapping=NULL,stat="identity",fill="#0074B7",size=0.2)
+m
+```
+
+
+![1](https://user-images.githubusercontent.com/85307870/128109171-8ca41ef8-fe5b-4e0e-aebb-0cda3bd746b2.png)
+![2](https://user-images.githubusercontent.com/85307870/128109174-1a02bf1b-027b-4ebf-9c32-c2ade7d00919.png)
+![3](https://user-images.githubusercontent.com/85307870/128109175-6ec310db-262c-4df1-bb1e-4a86b9a92027.png)
