@@ -22,31 +22,29 @@ import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
 stop_words = stopwords.words('english')
 
-
-stop_words.extend(['from', 'subject', 're', 'especially','kinda','absolutely','totally','quite','fully','--','——','bit','quite', 'actually','edu', 'would', 'could', 'amp','&amp', 'do','many', 'some', 'nice', 'rather', 'easy', 'easily', 'lot', 'seem', 'even', 'right', 'line', 'even', 'also', 'may', 'other','be','still','go','get','let','one','almost','-','--','s','much','point','indeed','otherwise','do','surely','right','lot','ever','often','mainly','obviously','even','hashtag','enough','exactly','however','exact','also','back','today','tonight','yet','extra','else','ve','really','instead','long','long','sure','already','sure','always','only'])
-stop_words.extend(['maybe','truly'])
+# customize stop word list
+stop_words.extend(['from', 'subject', 're', 'especially','kinda','absolutely','totally','quite','fully','--','——','bit','quite', 'actually','edu', 'would', 'could', 'amp','&amp', 'do','many', 'some', 'nice', 'rather', 'easy', 'easily', 'lot', 'seem', 'even', 'right', 'line', 'even', 'also', 'may', 'other','be','still','go','get','let','one','almost','-','--','s','much','point','indeed','otherwise','do','surely','right','lot','ever','often','mainly','obviously','even','hashtag','enough','exactly','however','exact','also','back','today','tonight','yet','extra','else','ve','really','instead','long','long','sure','already','sure','always','only','www','maybe','truly'])
 stop_words.extend(['tweet','a','mask','masks','wear','wearing','face','weared','put','facemask','facemasks','cover','facecoverings','facecovering','covers','covered','covering'])
-stop_words.extend(['know','see','say','take','just','last','tomorrow','day','week'])
+stop_words.extend(['know','see','say','take','just','last','tomorrow','today','tonight','rd','gt','nt','twitter','morning','first','last'])
+stop_words.extend(['twat','fuck','cunt','wanker','arse','ass','fucker','haha','sewarty','covid-'])
 
 %matplotlib inline
 warnings.filterwarnings("ignore",category=DeprecationWarning)
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.ERROR)
 
-df = pd.read_csv('/Users/clancy/Desktop/dissertation/results/cleanall.csv') 
+df = pd.read_csv('to_your_path.csv') 
 df.dropna(axis='columns', inplace=True)
 df.columns
 df.drop_duplicates(inplace=True, subset="text") #remove duplicates
 
 
+# manually split the hashtags and clean the texts 
 def sent_to_words(sentences):
     for sent in sentences:
         sent = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', ' ',sent) #remove hyperlinks
         sent = re.sub('\S*@\S*\s?', '', sent)  # remove emails
         sent = re.sub('\s+', ' ', sent)  # remove newline chars
         sent = re.sub("\'", "", sent)  # remove single quotes
-        sent = re.sub(r' ff', ' follow Friday', sent,flags=re.IGNORECASE)
-        sent = re.sub(r'dm', 'direct message', sent,flags=re.IGNORECASE)
-        sent = re.sub(r'kbf', 'keep Britain Free', sent,flags=re.IGNORECASE)
         sent = re.sub(r'washyourhand', 'wash your hand', sent,flags=re.IGNORECASE)
         sent = re.sub(r'protectthenhs', 'protect the nhs', sent,flags=re.IGNORECASE)
         sent = re.sub(r'stayhome', 'stay home', sent,flags=re.IGNORECASE)
@@ -138,6 +136,10 @@ def sent_to_words(sentences):
         sent = re.sub(r'maskmoaner','mask moaner',sent,flags=re.IGNORECASE)
         sent = re.sub(r'forhim','for him',sent,flags=re.IGNORECASE)
         sent = re.sub(r'forher','for her',sent,flags=re.IGNORECASE)
+        sent = re.sub(r' ff', ' follow Friday', sent,flags=re.IGNORECASE)
+        sent = re.sub(r' dm', ' direct message', sent,flags=re.IGNORECASE)
+        sent = re.sub(r'kbf', 'keep Britain Free', sent,flags=re.IGNORECASE)
+        sent = re.sub(r' remb ', ' remember ', sent,flags=re.IGNORECASE)
         sent = re.sub(r'dontbeaspreader','do not be a spreader',sent,flags=re.IGNORECASE)
         sent = re.sub(r'streetwearmask','street wear mask',sent,flags=re.IGNORECASE)
         sent = re.sub(r'deletetheapp','delete the app',sent,flags=re.IGNORECASE)
@@ -169,15 +171,88 @@ def sent_to_words(sentences):
         sent = re.sub(r'speakyourtruth','speak your truth',sent,flags=re.IGNORECASE)   
         sent = re.sub(r'tuesdaythought','Tuesday thought',sent,flags=re.IGNORECASE) 
         sent = re.sub(r'brexitsacrime','brexits a crime',sent,flags=re.IGNORECASE)
-        sent = re.sub(r'governmentsheep','government sheep',sent,flags=re.IGNORECASE)         
+        sent = re.sub(r'governmentsheep','government sheep',sent,flags=re.IGNORECASE)  
+        sent = re.sub(r'covididiot','covid idiot',sent,flags=re.IGNORECASE)        
+        sent = re.sub(r'vaccineswork','vaccines work',sent,flags=re.IGNORECASE)  
+        sent = re.sub(r'wearmask','wear mask',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'covidchristma','covid christma',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'savelife','save life',sent,flags=re.IGNORECASE)     
+        sent = re.sub(r'lol','laugh out loud',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'testchecktrace','test check trace',sent,flags=re.IGNORECASE)   
+        sent = re.sub(r'protectother','protect other',sent,flags=re.IGNORECASE)   
+        sent = re.sub(r'govt','government',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'masksformen','masks for men',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'masksforwomen','masks for women',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'publictransport','public transport',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'shopsreopening','shops reopening',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'keep safe','keep safe',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'maskssavealife','masks save life',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'maskofcotton','mask of cotton',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'doglover','dog lover',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'trickortreat','trick or treat',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'respectthevirus','respect the virus',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'mutualaid','mutual aid',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'fabricmask','fabrick mask',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'boho fashion','boho fashion',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'masksforall','masks for all',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'shopalone','shop alone',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'fabricface','fabric face',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'keepsafe','keep safe',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'buyface','buy face',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'protectivemask','protective mask',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'facecover','face cover',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'wearyourmask','wear your mask',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'stayalert','stay alert',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'savetheart','save the art',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'africanfashion','african fashion',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'vaccinnatedasap','vaccinated asap',sent,flags=re.IGNORECASE) 
+        sent = re.sub(r'lepardprint','lepard print',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'lockdownlife','lockdown life',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'schoolclosure','school closure',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'maidenheadtoday','maidenhead today',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'healthandsafety','health and safety',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'londonfashion','london fashion',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'colorfulmask','colorful mask',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'latexfashion','latex fashion',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'masksinclass','masks in class',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'faceprotection','face protection',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'latexgirl','latex girl',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'sackjohnson','sack johnson',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'thankyou','thank you',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'mondaythought','monday thought',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'savelive','save live',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'covidisnotover','covid is not over',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'spacefreshair','space fresh air',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'testtracktrace','test track trace',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'wednesdaywisdom','wednesday wisdom',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'monsonnews','monson news',sent,flags=re.IGNORECASE)
+        sent = re.sub(r' pic ',' picture ',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'twitterblock','twitter block',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'maskssavelives','masks save lives',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'maskssave','masks save',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'trackandtrace','track and trace',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'backtoschool','back to school',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'eatouttohelp','eat out to help',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'madetoorder','made to order',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'massobservation','mass observation',sent,flags=re.IGNORECASE)
         sent = gensim.utils.simple_preprocess(str(sent), deacc=True) 
         yield(sent)  
 
 
 # Convert to list
 data = df.text.values.tolist()
-data_words = list(sent_to_words(data))
-data_words[:1]
+data_words_needs_clean = list(sent_to_words(data))
+data_words_neads_clean[:1]
+
+def sortAndUniq(input):
+  output = []
+  for x in input:
+    if x not in output:
+      output.append(x)
+  output.sort()
+  return output
+
+data_words=sortAndUniq(data_words_needs_clean) # reclean the duplicated tweets after hashtag cleanning
 
 
 # Build the bigram and trigram models
@@ -186,17 +261,23 @@ trigram = gensim.models.Phrases(bigram[data_words], threshold=10.0)
 bigram_mod = gensim.models.phrases.Phraser(bigram)
 trigram_mod = gensim.models.phrases.Phraser(trigram)
 
+#remove stop words
+def remove_stopwords(texts,stop):
+    return [[word for word in simple_preprocess(str(doc)) if word not in stop] for doc in texts]
+
+def make_bigrams(texts):
+    return [bigram_mod[doc] for doc in texts]
+
+def make_trigrams(texts):
+    return [trigram_mod[bigram_mod[doc]] for doc in texts]
 
 
+nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
 
 
-# !python3 -m spacy download en  # run in terminal once
-def process_words(texts, stop_words, allowed_postags=['NOUN']):
-    texts = [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts]
-    texts = [bigram_mod[doc] for doc in texts]
-    texts = [trigram_mod[bigram_mod[doc]] for doc in texts]
+def process_words(texts, allowed_postags=['NOUN']):
+    """https://spacy.io/api/annotation"""
     texts_out = []
-    nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
     for sent in texts:
         doc = nlp(" ".join(sent)) 
         texts_out.append([token.lemma_ for token in doc if token.pos_ in allowed_postags])
@@ -204,7 +285,15 @@ def process_words(texts, stop_words, allowed_postags=['NOUN']):
     texts_out = [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts_out]    
     return texts_out
 
-data_ready = process_words(data_words,stop_words,['NOUN'])  # processed Text Data
+# Remove Stop Words
+data_words_nostops = remove_stopwords(data_words,stop_words2)
+
+# Form Bigrams and trigrams
+data_words_bigrams = make_bigrams(data_words_nostops)
+data_words_trigrams = make_trigrams(data_words_bigrams)
+
+# processed Text Data and only keep nouns
+data_ready = process_words(data_words_bigrams, allowed_postags=['NOUN'])  
 
 # Create Dictionary
 id2word = corpora.Dictionary(data_ready)
@@ -214,8 +303,8 @@ corpus = [id2word.doc2bow(text) for text in data_ready]
 print(corpus[:1])
 
 
-#optimize topic models
 
+#optimize topic models by coherence values
 coherence_values = []
 
 for num_topics in range(5, 35):
@@ -227,15 +316,34 @@ for num_topics in range(5, 35):
 	   	)
 	coherence_values.append(coherencemodel.get_coherence())
 
+coherence_values 
 
-coherence_values #use r studio for viz
+#use r studio for plotting coherence values or use the following code
+# model_list, coherence_values = compute_coherence_values(dictionary=dictionary, corpus=corpus, texts=docs, start=2, limit=40, step=6)
+# import matplotlib.pyplot as plt
+# limit=35; start=5;
+# x = range(start, limit, step)
+# plt.plot(x, coherence_values)
+# plt.xlabel("Num Topics")
+# plt.ylabel("Coherence score")
+# plt.legend(("coherence_values"), loc='best')
+# plt.show()
+	
+
+	
+# train lda model
+lda_model = gensim.models.ldamodel.LdaModel(corpus, num_topics=18,id2word=id2word, passes=200, iterations=2000, chunksize=20000, eval_every = None, random_state=0,alpha='auto',eta='auto')
+# chunksize larger than the total number of tweets takes in all tweets in one go. 
+# passes to 200, iterations to 2000, set the value higher as possible
+# eval_every = 0 to reduce time. 
+# alpha = 'auto' and eta = 'auto', which will automatically learn these parameters.
 
 
-#build the model
-lda_model = gensim.models.ldamodel.LdaModel(corpus, num_topics=19,id2word=id2word,passes=40,iterations=200,chunksize=10000,eval_every = None, random_state=0)
-doc_lda = lda_model[corpus]
+# measure coherence scores & perplexity score
+coherence_model_lda = CoherenceModel(model=lda_model, texts=data_ready, dictionary=id2word, coherence='c_v')
+coherence_lda = coherence_model_lda.get_coherence()
+print('\nCoherence Score: ', coherence_lda)
 print('\nPerplexity: ', lda_model.log_perplexity(corpus))  # a measure of how good the model is. lower the better.
-
 
 
 # visualizaton
@@ -245,18 +353,15 @@ topic_data =  pyLDAvis.gensim.prepare(lda_model, corpus, id2word, mds = 'mmds')
 pyLDAvis.save_html(topic_data, 'to_your_path.html')
 
 
-#arrange topics in a table
+# you could also arrange the topics using a table
 all_topics = {}
-num_terms = 10 # Adjust number of words to represent each topic
+num_terms = 15 # Adjust number of words to represent each topic
 lambd = 0.6 # Adjust this accordingly based on tuning above
 for i in range(1,19): #Adjust this to reflect number of topics chosen for final LDA model
     topic = topic_data.topic_info[topic_data.topic_info.Category == 'Topic'+str(i)].copy()
     topic['relevance'] = topic['loglift']*(1-lambd)+topic['logprob']*lambd
     all_topics['Topic '+str(i)] = topic.sort_values(by='relevance', ascending=False).Term[:num_terms].values
 
-
-negative=pd.DataFrame(all_topics).T
-
-
-negative.to_csv('to_your_path.csv')
+topicsplot=pd.DataFrame(all_topics).T
+topicsplot.to_csv('to_your_path.csv')
 
