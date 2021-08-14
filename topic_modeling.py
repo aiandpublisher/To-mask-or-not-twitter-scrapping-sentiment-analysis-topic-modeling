@@ -252,7 +252,7 @@ def sortAndUniq(input):
   output.sort()
   return output
 
-data_words=sortAndUniq(data_words_needs_clean) # reclean the duplicated tweets after hashtag cleanning
+data_words=sortAndUniq(data_words_needs_clean) # reclean the duplicated tweets after hashtag processing, only 13541 records were kept for topic modeling
 
 
 # Build the bigram and trigram models
