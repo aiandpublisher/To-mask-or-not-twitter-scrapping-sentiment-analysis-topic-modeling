@@ -23,10 +23,13 @@ from nltk.corpus import stopwords
 stop_words = stopwords.words('english')
 
 # customize stop word list
-stop_words.extend(['from', 'subject', 're', 'especially','kinda','absolutely','totally','quite','fully','--','——','bit','quite', 'actually','edu', 'would', 'could', 'amp','&amp', 'do','many', 'some', 'nice', 'rather', 'easy', 'easily', 'lot', 'seem', 'even', 'right', 'line', 'even', 'also', 'may', 'other','be','still','go','get','let','one','almost','-','--','s','much','point','indeed','otherwise','do','surely','right','lot','ever','often','mainly','obviously','even','hashtag','enough','exactly','however','exact','also','back','today','tonight','yet','extra','else','ve','really','instead','long','long','sure','already','sure','always','only','www','maybe','truly'])
+stop_words.extend(['from', 'subject', 're', 'especially','kinda','absolutely','totally','quite','fully','--','——','ー','bit','quite', 'actually','edu', 'would', 'could', 'amp','&amp', 'do','many', 'some', 'nice', 'rather', 'easy', 'easily', 'lot', 'seem', 'even', 'right', 'line', 'even', 'also', 'may', 'other','be','still','go','get','let','one','almost','-','--','s','much','point','indeed','otherwise','do','surely','right','lot','ever','often','mainly','obviously','even','hashtag','enough','exactly','however','exact','also','back','today','tonight','yet','extra','else','ve','really','instead','long','long','sure','already','sure','always','only','www'])
+stop_words.extend(['maybe','truly'])
 stop_words.extend(['tweet','a','mask','masks','wear','wearing','face','weared','put','facemask','facemasks','cover','facecoverings','facecovering','covers','covered','covering'])
 stop_words.extend(['know','see','say','take','just','last','tomorrow','today','tonight','rd','gt','nt','twitter','morning','first','last'])
-stop_words.extend(['twat','fuck','cunt','wanker','arse','ass','fucker','haha','sewarty','covid-'])
+stop_words.extend(['twat','fuck','cunt','wanker','arse','ass','fucker','haha','sewarty'])
+
+stop_words2 = [e for e in stop_words if e not in ('he', 'she','for','his','her','me','you','his','hers','against','myselves','yourselves','covidー','ff')]
 
 %matplotlib inline
 warnings.filterwarnings("ignore",category=DeprecationWarning)
@@ -37,8 +40,7 @@ df.dropna(axis='columns', inplace=True)
 df.columns
 df.drop_duplicates(inplace=True, subset="text") #remove duplicates
 
-
-# manually split the hashtags and clean the texts 
+#manually split the hashtags for cleaner results, tokenize the texts
 def sent_to_words(sentences):
     for sent in sentences:
         sent = re.sub('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', ' ',sent) #remove hyperlinks
@@ -106,12 +108,18 @@ def sent_to_words(sentences):
         sent = re.sub(r'maskon','mask on',sent,flags=re.IGNORECASE)
         sent = re.sub(r'nomask','no mask',sent,flags=re.IGNORECASE)
         sent = re.sub(r'masksdontwork','masks dont work',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'maskmaker','mask maker',sent,flags=re.IGNORECASE)
         sent = re.sub(r'nomaskonme','no mask on me',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'maskfashion','mask fashion',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'fashionstyle','fashion style',sent,flags=re.IGNORECASE)
         sent = re.sub(r'nomaskselfie','no mask selfie',sent,flags=re.IGNORECASE)
         sent = re.sub(r'burnyourmaskchallenge','burn your mask challenge',sent,flags=re.IGNORECASE)
         sent = re.sub(r'nomasksever','no masks ever',sent,flags=re.IGNORECASE)
         sent = re.sub(r'nomoremasks','no more masks',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'fridayfeeling','friday feeling',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'savetheplanet','save the planet',sent,flags=re.IGNORECASE)
         sent = re.sub(r'masksoff','masks off',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'wearthemask','wear the mask',sent,flags=re.IGNORECASE)
         sent = re.sub(r'masksmakemesweaty','masks make me sweaty',sent,flags=re.IGNORECASE)
         sent = re.sub(r'nevermasker','never masker',sent,flags=re.IGNORECASE)
         sent = re.sub(r'sheepwearmasks','sheep wear masks',sent,flags=re.IGNORECASE)
@@ -235,15 +243,19 @@ def sent_to_words(sentences):
         sent = re.sub(r'eatouttohelp','eat out to help',sent,flags=re.IGNORECASE)
         sent = re.sub(r'madetoorder','made to order',sent,flags=re.IGNORECASE)
         sent = re.sub(r'massobservation','mass observation',sent,flags=re.IGNORECASE)
+        sent = re.sub(r'contemporaryart','contemporary art',sent,flags=re.IGNORECASE)
         sent = gensim.utils.simple_preprocess(str(sent), deacc=True) 
         yield(sent)  
 
 
-# Convert to list
-data = df.text.values.tolist()
-data_words_needs_clean = list(sent_to_words(data))
-data_words_neads_clean[:1]
 
+# Convert to list
+data = df.text.values.tolist() #modify 'text' to the column name of the twitter data 
+data_words_needs_clean = list(sent_to_words(data))
+# data_words_neads_clean[:1] try this to check 
+
+
+# reclean the duplicated tweets after hashtag processing,
 def sortAndUniq(input):
   output = []
   for x in input:
@@ -252,7 +264,8 @@ def sortAndUniq(input):
   output.sort()
   return output
 
-data_words=sortAndUniq(data_words_needs_clean) # reclean the duplicated tweets after hashtag processing, only 13541 records were kept for topic modeling
+
+data_words=sortAndUniq(data_words_needs_clean) # only 13541 records were kept for topic modeling
 
 
 # Build the bigram and trigram models
@@ -272,6 +285,8 @@ def make_trigrams(texts):
     return [trigram_mod[bigram_mod[doc]] for doc in texts]
 
 
+
+# make sure this step is executed and NOT SKIPPED
 nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
 
 
@@ -285,7 +300,8 @@ def process_words(texts, allowed_postags=['NOUN']):
     texts_out = [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts_out]    
     return texts_out
 
-# Remove Stop Words
+
+# Remove some new Stop Words from the result
 data_words_nostops = remove_stopwords(data_words,stop_words2)
 
 # Form Bigrams and trigrams
@@ -307,21 +323,22 @@ print(corpus[:1])
 #optimize topic models by coherence values
 coherence_values = []
 
-for num_topics in range(5, 35):
+for num_topics in range(5,35,2): #for this study, the topic modeling of the dataset from UK used zero as the step value
 	print('Round: '+str(num_topics))
 	Lda = gensim.models.ldamodel.LdaModel
-	ldamodel = Lda(corpus, num_topics=num_topics,id2word=id2word,passes=40,iterations=200,chunksize=10000,eval_every = None, random_state=0)   	
+	ldamodel = Lda(corpus, num_topics=num_topics,id2word=id2word,passes=200, iterations=2000, chunksize=20000, eval_every = None, random_state=0,alpha='auto',eta='auto')   	
 	coherencemodel = CoherenceModel(
 	   	model=ldamodel, texts=data_ready, dictionary=id2word, coherence='c_v'
 	   	)
 	coherence_values.append(coherencemodel.get_coherence())
 
-coherence_values 
+
+coherence_values
 
 #use r studio for plotting coherence values or use the following code
 # model_list, coherence_values = compute_coherence_values(dictionary=dictionary, corpus=corpus, texts=docs, start=2, limit=40, step=6)
 # import matplotlib.pyplot as plt
-# limit=35; start=5;
+# limit=35; start=5, step=2;
 # x = range(start, limit, step)
 # plt.plot(x, coherence_values)
 # plt.xlabel("Num Topics")
@@ -331,12 +348,13 @@ coherence_values
 	
 
 	
+
 # train lda model
-lda_model = gensim.models.ldamodel.LdaModel(corpus, num_topics=18,id2word=id2word, passes=200, iterations=2000, chunksize=20000, eval_every = None, random_state=0,alpha='auto',eta='auto')
-# chunksize larger than the total number of tweets takes in all tweets in one go. 
-# passes to 200, iterations to 2000, set the value higher as possible
-# eval_every = 0 to reduce time. 
-# alpha = 'auto' and eta = 'auto', which will automatically learn these parameters.
+lda_model = gensim.models.ldamodel.LdaModel(corpus, num_topics=17,id2word=id2word, passes=200, iterations=2000, chunksize=20000, eval_every = None, random_state=0,alpha='auto',eta='auto')
+#Chunksize larger than the total number of tweets takes in all tweets in one go. 
+#researchers suggest to set the passes and iterations as high as possible
+#eval_every = 0 to reduce time. 
+#alpha = 'auto' and eta = 'auto', which will automatically learn these parameters.
 
 
 # measure coherence scores & perplexity score
@@ -356,8 +374,8 @@ pyLDAvis.save_html(topic_data, 'to_your_path.html')
 # you could also arrange the topics using a table
 all_topics = {}
 num_terms = 15 # Adjust number of words to represent each topic
-lambd = 0.6 # Adjust this accordingly based on tuning above
-for i in range(1,19): #Adjust this to reflect number of topics chosen for final LDA model
+lambd = 0.60 # Adjust this accordingly based on tuning above
+for i in range(1,18): #Adjust this to reflect number of topics chosen for final LDA model
     topic = topic_data.topic_info[topic_data.topic_info.Category == 'Topic'+str(i)].copy()
     topic['relevance'] = topic['loglift']*(1-lambd)+topic['logprob']*lambd
     all_topics['Topic '+str(i)] = topic.sort_values(by='relevance', ascending=False).Term[:num_terms].values
