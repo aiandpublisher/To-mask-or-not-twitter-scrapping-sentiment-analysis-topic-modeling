@@ -269,10 +269,11 @@ data_words=sortAndUniq(data_words_needs_clean) # only 13541 records were kept fo
 
 
 # Build the bigram and trigram models
-bigram = gensim.models.Phrases(data_words, min_count=5, threshold=10.0, delimiter='_') # higher threshold fewer phrases.
-trigram = gensim.models.Phrases(bigram[data_words], threshold=10.0)  
+bigram = gensim.models.Phrases(data_words, min_count=5, threshold=10, delimiter='_') # higher threshold fewer phrases.
+trigram = gensim.models.Phrases(bigram[data_words], min_count=5, threshold=10, delimiter='_')  
 bigram_mod = gensim.models.phrases.Phraser(bigram)
 trigram_mod = gensim.models.phrases.Phraser(trigram)
+
 
 #remove stop words
 def remove_stopwords(texts,stop):
@@ -286,6 +287,8 @@ def make_trigrams(texts):
 
 
 
+# make sure this step is executed and NOT SKIPPED
+# make sure this step is executed and NOT SKIPPED
 # make sure this step is executed and NOT SKIPPED
 nlp = spacy.load('en_core_web_sm', disable=['parser', 'ner'])
 
@@ -323,7 +326,7 @@ print(corpus[:1])
 #optimize topic models by coherence values
 coherence_values = []
 
-for num_topics in range(5,35,2): #for this study, the topic modeling of the dataset from UK used zero as the step value
+for num_topics in range(5,35,2): # for saving the data processing time this study used 2 as the step value for positive dataset and 0 for negative dataset
 	print('Round: '+str(num_topics))
 	Lda = gensim.models.ldamodel.LdaModel
 	ldamodel = Lda(corpus, num_topics=num_topics,id2word=id2word,passes=200, iterations=2000, chunksize=20000, eval_every = None, random_state=0,alpha='auto',eta='auto')   	
@@ -338,7 +341,7 @@ coherence_values
 #use r studio for plotting coherence values or use the following code
 # model_list, coherence_values = compute_coherence_values(dictionary=dictionary, corpus=corpus, texts=docs, start=2, limit=40, step=6)
 # import matplotlib.pyplot as plt
-# limit=35; start=5, step=2;
+# limit=35; start=5, step=2; 
 # x = range(start, limit, step)
 # plt.plot(x, coherence_values)
 # plt.xlabel("Num Topics")
@@ -350,11 +353,13 @@ coherence_values
 	
 
 # train lda model
-lda_model = gensim.models.ldamodel.LdaModel(corpus, num_topics=17,id2word=id2word, passes=200, iterations=2000, chunksize=20000, eval_every = None, random_state=0,alpha='auto',eta='auto')
+lda_model = gensim.models.ldamodel.LdaModel(corpus, num_topics=12,id2word=id2word, passes=200, iterations=2000, chunksize=20000, eval_every = None, random_state=0,alpha='auto',eta='auto')
 #Chunksize larger than the total number of tweets takes in all tweets in one go. 
-#researchers suggest to set the passes and iterations as high as possible
+#passes to 80; chosen by setting an argument 
 #eval_every = 0 to reduce time. 
 #alpha = 'auto' and eta = 'auto', which will automatically learn these parameters.
+
+
 
 
 # measure coherence scores & perplexity score
