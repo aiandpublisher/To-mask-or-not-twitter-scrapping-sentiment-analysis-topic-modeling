@@ -10,7 +10,7 @@ client = tweepy.Client("add_your_tokens_here") #prerequisite: apply for the acce
 
 results=[]
 hash_tag = '(#WearAMask OR #MaskUp OR #Masks4All OR #FaceMasks OR #Masks OR #Mask OR #Masker OR #WearMask OR #MedicalFaceMask OR #VirusMask OR #HandMadeMask OR #SurgicalMask OR #MaskOn OR #TakeOffYourMask OR #MaskOff OR #NoMasks OR #UnmaskOurChildren OR #MaskBurning OR #TakeOffTheMask OR #NoMask OR #MasksDontWork OR #NoMaskOnMe OR #NoMasksOnMe or #NoMaskSelfie OR #BurnYourMaskChallenge OR #NoMasksEVER OR #NoMoreMasks OR #Masksoff OR #MasksMakeMeSweaty OR #NeverMasker OR #SheepWearMasks OR #MasksAreMurderingMe OR #StopForcingMasksOnMe OR #Maskhoax OR #Maskshoax OR #IWillNotWearAMask or #RefuseMask or #FaceFreedom or #StopMasking or #MomsAgainstMasks or #MaskingChildrenIsChildAbuse or #MasksAreForSheep or #StopWearingMask or #StopWearingTheDamnMasks or #MasksDontMatter) (place_country:GB lang:en)' #A set of hashtags about face masks
-# change the country to CN for retrieving tweets in China
+# change place _country to retrieve data from other countries
 new_search = hash_tag + '-is:retweet'#exclude retweet
 
 
