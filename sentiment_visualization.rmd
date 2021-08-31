@@ -30,47 +30,103 @@ tweet$date <- as.Date(tweet$date)
 tweet<-arrange(tweet,created_at)
 ```
 
-
-## dataset as a whole 
-```{r pressure, echo=FALSE}
+```{r whole}
 tweet$month <- format(as.Date(tweet$date), "%y-%m")
-tweet_parts <- subset(tweet, select = compound:month) 
-sentiment <- aggregate(x = tweet_parts$compound,            # Specify data column
+tweet_parts <- subset(tweet, select = compound_scores:month) 
+sentiment <- aggregate(x = tweet_parts$compound_scores,            # Specify data column
           by = list(tweet_parts$month),             # Specify group indicator
           FUN = mean)    
-colnames(sentiment) <- c('month','score')
+colnames(sentiment) <- c('month','score')         #calculate the average sentiment score for every month
 
-sentimentdate <- aggregate(x = tweet_parts$compound,            # Specify data column
+sentimentdate <- aggregate(x = tweet_parts$compound_scores,            # Specify data column
           by = list(tweet_parts$date),             # Specify group indicator
-          FUN = mean)    
+          FUN = mean)                         #calculate the average sentiment score for every day
 colnames(sentimentdate) <- c('date','score') 
+summary(sentimentdate)
+```
 
-p <- ggplot(tweet,aes(date, compound)) +
+```{r date}
+whole <- ggplot(tweet,aes(date, compound_scores)) +
   geom_point(size=2.5,alpha=0.1,color="#0074B7")+
-  geom_smooth(method="auto", se=TRUE, fullrange=FALSE, level=0.95)
-p
+  geom_smooth(method="auto", formula = y ~ s(x, bs = "cs"),na.rm=TRUE,fullrange=TRUE)+ #gam suits better a large dataset
+  labs(title = "Mask-related tweet sentiment distribution in India",
+       subtitle = "From 9021 retrieved tweets using mask-related hashtags",
+         x = "Date",
+         y = "Sentiment score")
+whole         # show the frequency distribution as well and the changing tendency
+```
 
 
-t <- ggplot(sentiment,aes(month, score,group = 1)) +
+## average sentiment score for every day
+```{r date, echo=FALSE}
+dayline <- ggplot(sentimentdate,aes(date, score,group = 1)) +
   geom_point(color="#0074B7")+
   geom_line()
-t
+dayline        #the line chart is too busy, so i used a bar chart instead
 
-```
-
-
-#sentiment by day
-```{r plot_sentiment,echo=FALSE}
-d <- ggplot(sentimentdate,aes(date, score,group = 1)) +
+daybar <- ggplot(sentimentdate,aes(date, score,group = 1)) +
   geom_bar(mapping=NULL,stat="identity",fill="#0074B7",size=0.2)+
-  geom_smooth()
-d
-
-sentdata <- tweet %>% group_by(date) %>% summarise(frequency = n(),score=mean(compound))
-
-m <- ggplot(sentdata,aes(date, frequency)) +
-  geom_bar(mapping=NULL,stat="identity",fill="#0074B7",size=0.2)
-m
+  geom_smooth(method="loess")+
+  labs(title = "Daily average sentiment score -India",
+         x = "Date",
+         y = "Average sentiment score")
+daybar # an apparent rise and fall could be observed
 ```
 
+# positive tweets by day 
+```{r pos_bar,echo=FALSE}
+positive<-subset(tweet,compound_scores>0)
+posdate <- positive %>% group_by(date) %>% summarise(frequency = n(),score=mean(compound_scores))
+head(posdate)
+posscatter <- ggplot(positive,aes(date, compound_scores)) +
+  geom_point(size=2.5,alpha=0.1,color="#0074B7")+
+  geom_smooth(method="auto", se=TRUE, fullrange=FALSE, level=0.95)
+posscatter      # a scatter plot of the sentiment scores by date
+posbar <- ggplot(posdate,aes(date, frequency,group = 1)) +
+   geom_bar(mapping=NULL,stat="identity",fill="#0074B7",size=0.2)+
+  labs(title = "Daily frequency of mask-related tweets - positive sentiments (India)",
+       subtitle="Sentiment score > 0",
+         x = "Date",
+         y = "Number of tweets")
+posbar          # a bar chart of the positive tweet frequency by date
+```
+
+
+# negative tweets by day 
+```{r neg_bar,echo=FALSE}
+negative<-subset(tweet,compound_scores<0)
+negdate <- negative %>% group_by(date) %>% summarise(frequency = n(),score=mean(compound_scores))
+negscatter <- ggplot(negative,aes(date, compound_scores)) +
+  geom_point(size=2.5,alpha=0.1,color="#0074B7")+
+  geom_smooth(method="auto", se=TRUE, fullrange=FALSE, level=0.95)
+negscatter      # a scatter plot of the sentiment scores by date
+negbar <- ggplot(negdate,aes(date, frequency,group = 1)) +
+   geom_bar(mapping=NULL,stat="identity",fill="#0074B7",size=0.2)+
+   expand_limits(y = c(0,70))+
+  labs(title = "Daily frequency of mask-related tweets - negative sentiments (India)",
+       subtitle="Sentiment score < 0",
+         x = "Date",
+         y = "Number of tweets")
+negbar          # a bar chart of the negative tweet frequency by date
+```
+
+
+# neutral tweets by day 
+```{r neg_bar,echo=FALSE}
+neutral<-subset(tweet,compound_scores==0)
+neudate <- neutral %>% group_by(date) %>% summarise(frequency = n())
+head(neudate)
+neubar <- ggplot(neudate,aes(date, frequency,group = 1)) +
+   geom_bar(mapping=NULL,stat="identity",fill="#0074B7",size=0.2)+
+   expand_limits(y = c(0,70))+
+  labs(title = "Daily frequency of mask-related tweets - neutral sentiments (India)",
+       subtitle="Sentiment score = 0",
+         x = "Date",
+         y = "Number of tweets")
+neubar          # a bar chart of the negative tweet frequency by date
+
+write.csv(positive,'/Users/....../positive_tweets.csv') #change to your own path
+write.csv(negative,'/Users/....../negative_tweets.csv') #change to your own path
+write.csv(neutral,'/Users/....../neutral_tweets.csv') #change to your own path
+```
 
