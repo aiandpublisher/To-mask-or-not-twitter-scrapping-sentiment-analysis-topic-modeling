@@ -53,9 +53,9 @@ def clean_data(df):
     df['texts'] = df['texts'].str.replace('\S*@\S*\s?', '') # remove emails
     df['texts'] = df['texts'].str.replace('\s+', ' ')  # remove newline chars
     df['texts'] = df['texts'].str.replace("\'", ' ') # remove single quotes
-    df['texts'] = df['texts'].str.replace('@[\w]+','') #remove user names
-    df['texts'] = df['texts'].str.replace('#','') #remove hashtag symbols
-clean_data(df)
+    df['texts'] = df['texts'].str.replace('@[\w]+','') #remove username mentions
+    df['texts'] = df['texts'].str.replace('#','') #remove special characters
+    df['texts'] = df['texts'].str.replace('&amp;','') #remove special characters
 
    
 
